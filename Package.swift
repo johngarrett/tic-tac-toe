@@ -6,16 +6,14 @@ let package = Package(
         .executable(name: "tic-tac-toe", targets: ["tic-tac-toe"])
     ],
     dependencies: [
-        .package(name: "JavaScriptKit", url: "https://github.com/swiftwasm/JavaScriptKit", from: "0.8.0")
+        .package(url: "https://github.com/swiftwasm/JavaScriptKit", .exact("0.8.0")),
+        .package(url: "https://github.com/johngarrett/HyperSwift", .branch("master"))
+        
     ],
     targets: [
         .target(
             name: "tic-tac-toe",
-            dependencies: [
-                .product(name: "JavaScriptKit", package: "JavaScriptKit")
-            ]),
-        .testTarget(
-            name: "tic-tac-toeTests",
-            dependencies: ["tic-tac-toe"]),
+            dependencies: ["JavaScriptKit", "HyperSwift"]
+        )
     ]
 )
