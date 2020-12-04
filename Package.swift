@@ -13,7 +13,7 @@ let package = Package(
     targets: [
         .target(
             name: "tic-tac-toe",
-            dependencies: ["JavaScriptKit", "HyperSwift"]
+            dependencies: [.product(name: "JavaScriptKit", package: "JavaScriptKit"), "HyperSwift"]
         )
     ]
 )
