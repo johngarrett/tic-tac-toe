@@ -8,7 +8,7 @@ var div = document.createElement("div")
 
 func button(with id: String) -> HTMLElement {
     Button(id: id) {
-        Header(.header2) { "X" }
+        Header(.header2) { "" }
             .add(style: .init("font-size", "4em"))
             .add(style: .init("font-family", "monospace"))
     }
@@ -38,9 +38,17 @@ let board = Div(id: "board") {
 .add(style: .init("grid-template", "repeat(3, 1fr) / repeat(3, 1fr)"))
 .add(style: .init("place-items", "center"))
 
-func onClickHandler(id: String) -> JSClosure {
+let game = Game()
+
+func onClickHandler(index: Int, id: String) -> JSClosure {
     JSClosure {_ in
-        print(id)
+        game.occupyTile(at: index)
+    }
+}
+
+func disableAllButtons() {
+    buttons.forEach {
+        document.getElementById($0.id).object?.disabled = true.jsValue()
     }
 }
 
@@ -57,9 +65,49 @@ div.innerHTML = Div {
 
 _ = document.body.appendChild(div)
 
-let trackedReferences = buttons.map { ($0.id, onClickHandler(id: $0.id)) }
+let trackedReferences = buttons.enumerated().map {
+    ($0.element.id, onClickHandler(index: $0.offset, id: $0.element.id))
+}
 
 for (id, handler) in trackedReferences {
-    var element = document.getElementById(id)
-    element.onclick = .function(handler)
+     document.getElementById(id).object?.onclick = .function(handler)
+}
+
+game.didUpdate = {
+    for (index, button) in buttons.enumerated() {
+        let state = game.trackedTiles[index]
+        var ref = document.getElementById(button.id)
+        switch state {
+        case .unoccupied:
+            print("unoccupied")
+        case .occupied(let player):
+            print("occupied by \(player)")
+            ref.firstChild.innerHTML = player.jsValue()
+            ref.disabled = true.jsValue()
+        }
+        
+    }
+    
+    
+    guard game.status == .inProgress else {
+        var subtext: String = ""
+        if case GameStatus.won(let player, let combinations) = game.status {
+            buttons.enumerated().filter({ combinations.contains($0.offset) }).forEach {
+                document.getElementById($0.element.id).object?.style.backgroundColor = "green"
+            }
+            subtext = "Player \(player) won!"
+        } else {
+            subtext = "tie"
+        }
+        
+        disableAllButtons()
+        document.getElementById("header").object?.innerHTML = VStack(align: .center) {
+            Header(.header1) { "Game Over!" }
+            Header(.header3) { subtext }
+        }.render().jsValue()
+
+        return
+    }
+   
+    document.getElementById("header").object?.firstChild.innerHTML = "Current Player: \(game.currentPlayer)".jsValue()
 }
