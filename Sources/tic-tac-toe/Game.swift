@@ -37,8 +37,10 @@ class Game {
         let xTiles = Set(trackedTiles.enumerated().filter { $0.element == .occupied("X") }.map { $0.offset })
         let yTiles = Set(trackedTiles.enumerated().filter { $0.element == .occupied("O") }.map { $0.offset })
         
-        print(xTiles)
-        print(yTiles)
+        guard xTiles.count + yTiles.count != 9 else {
+            status = .tie
+            return
+        }
         
         let winningCombinations = [
             Set([0, 1, 2]),
@@ -53,10 +55,10 @@ class Game {
         
         for combination in winningCombinations {
             if combination == xTiles.intersection(combination) {
-                status = GameStatus.won("X", combination)
+                status = .won("X", combination)
             }
             if combination == yTiles.intersection(combination) {
-                status = GameStatus.won("O", combination)
+                status = .won("O", combination)
             }
         }
     }
