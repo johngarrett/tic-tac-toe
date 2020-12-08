@@ -1,3 +1,5 @@
 # tic-tac-toe
 
-A description of this package.
+1. install `carton`
+2. run `carton dev` to run the project
+
