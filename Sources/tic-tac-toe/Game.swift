@@ -1,64 +1,75 @@
 import Foundation
+import HyperSwift
 
 enum TileState: Equatable {
-    case unoccupied, occupied(String)
+    case unoccupied, occupied(Player)
 }
 
 enum GameStatus: Equatable {
     case inProgress
-    case tie, won(String, Set<Int>)
+    case tie, won(Player, Set<Int>)
+}
+
+struct Player: Equatable {
+    static func == (lhs: Player, rhs: Player) -> Bool {
+        lhs.identifier == rhs.identifier
+    }
+    
+    let identifier: String
+    let color: CSSColor
+    func occupiedTiles(from tiles: [TileState]) -> Set<Int> {
+        Set(tiles.enumerated().filter { $0.element == .occupied(self) }.map { $0.offset })
+    }
 }
 
 class Game {
+    let primaryPlayer: Player
+    let secondaryPlayer: Player
     var status: GameStatus
-    var currentPlayer: String
+    var currentPlayer: Player
     var trackedTiles: [TileState]
-    var didUpdate: (() -> Void)?
+    private let winningCombinations = [
+        Set([0, 1, 2]),
+        Set([3, 4, 5]),
+        Set([6, 7, 8]),
+        Set([0, 4, 8]),
+        Set([2, 4, 6]),
+        Set([0, 3, 6]),
+        Set([1, 4, 7]),
+        Set([2, 5, 8])
+    ]
+    var didUpdate: ((_ status: GameStatus, _ currentPlayer: Player) -> Void)?
     
     init() {
         status = .inProgress
-        currentPlayer = "X"
+        primaryPlayer = Player(identifier: "X", color: Style.Color.primaryPlayer)
+        secondaryPlayer = Player(identifier: "O", color: Style.Color.secondaryPlayer)
+        currentPlayer = primaryPlayer
         trackedTiles = Array(repeating: TileState.unoccupied, count: 9)
     }
     
     func occupyTile(at index: Int) {
         trackedTiles[index] = TileState.occupied(currentPlayer)
-        currentPlayer = currentPlayer == "X" ? "O" : "X"
+        currentPlayer = currentPlayer == primaryPlayer ? secondaryPlayer : primaryPlayer
         checkForWinner()
-        didUpdate?()
+        didUpdate?(status, currentPlayer)
     }
     
-    /*
-     1 2 3
-     4 5 6
-     7 8 9
-     */
     private func checkForWinner() {
-        let xTiles = Set(trackedTiles.enumerated().filter { $0.element == .occupied("X") }.map { $0.offset })
-        let yTiles = Set(trackedTiles.enumerated().filter { $0.element == .occupied("O") }.map { $0.offset })
+        let primaryTiles = primaryPlayer.occupiedTiles(from: trackedTiles)
+        let secondaryTiles = secondaryPlayer.occupiedTiles(from: trackedTiles)
         
-        guard xTiles.count + yTiles.count != 9 else {
+        guard primaryTiles.count + secondaryTiles.count != 9 else {
             status = .tie
             return
         }
         
-        let winningCombinations = [
-            Set([0, 1, 2]),
-            Set([3, 4, 5]),
-            Set([6, 7, 8]),
-            Set([0, 4, 8]),
-            Set([2, 4, 6]),
-            Set([0, 3, 6]),
-            Set([1, 4, 7]),
-            Set([2, 5, 8])
-        ]
-        
         for combination in winningCombinations {
-            if combination == xTiles.intersection(combination) {
-                status = .won("X", combination)
+            if combination == primaryTiles.intersection(combination) {
+                status = .won(primaryPlayer, combination)
             }
-            if combination == yTiles.intersection(combination) {
-                status = .won("O", combination)
+            if combination == secondaryTiles.intersection(combination) {
+                status = .won(secondaryPlayer, combination)
             }
         }
     }
