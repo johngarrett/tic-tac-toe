@@ -22,7 +22,8 @@ struct Player: Equatable {
     }
 }
 
-class Game {
+struct Game {
+    typealias updateCallback = (_ status: GameStatus, _ currentPlayer: Player) -> Void
     let primaryPlayer: Player
     let secondaryPlayer: Player
     var status: GameStatus
@@ -38,24 +39,25 @@ class Game {
         Set([1, 4, 7]),
         Set([2, 5, 8])
     ]
-    var didUpdate: ((_ status: GameStatus, _ currentPlayer: Player) -> Void)?
+    var didUpdate: updateCallback
     
-    init() {
+    init(onUpdate callback: @escaping updateCallback) {
         status = .inProgress
         primaryPlayer = Player(identifier: "X", color: Style.Color.primaryPlayer)
         secondaryPlayer = Player(identifier: "O", color: Style.Color.secondaryPlayer)
         currentPlayer = primaryPlayer
         trackedTiles = Array(repeating: TileState.unoccupied, count: 9)
+        didUpdate = callback
     }
     
-    func occupyTile(at index: Int) {
+    mutating func occupyTile(at index: Int) {
         trackedTiles[index] = TileState.occupied(currentPlayer)
         currentPlayer = currentPlayer == primaryPlayer ? secondaryPlayer : primaryPlayer
         checkForWinner()
-        didUpdate?(status, currentPlayer)
+        didUpdate(status, currentPlayer)
     }
     
-    private func checkForWinner() {
+    private mutating func checkForWinner() {
         let primaryTiles = primaryPlayer.occupiedTiles(from: trackedTiles)
         let secondaryTiles = secondaryPlayer.occupiedTiles(from: trackedTiles)
         
