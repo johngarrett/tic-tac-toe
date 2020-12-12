@@ -26,7 +26,7 @@ struct Game {
     typealias updateCallback = (_ status: GameStatus, _ currentPlayer: Player) -> Void
     let primaryPlayer: Player
     let secondaryPlayer: Player
-    var status: GameStatus
+    var status: GameStatus = .inProgress
     var currentPlayer: Player
     var trackedTiles: [TileState]
     private let winningCombinations = [
@@ -49,7 +49,9 @@ struct Game {
         trackedTiles = Array(repeating: TileState.unoccupied, count: 9)
         didUpdate = callback
     }
-    
+}
+
+extension Game {
     mutating func occupyTile(at index: Int) {
         trackedTiles[index] = TileState.occupied(currentPlayer)
         currentPlayer = currentPlayer == primaryPlayer ? secondaryPlayer : primaryPlayer
@@ -61,11 +63,6 @@ struct Game {
         let primaryTiles = primaryPlayer.occupiedTiles(from: trackedTiles)
         let secondaryTiles = secondaryPlayer.occupiedTiles(from: trackedTiles)
         
-        guard primaryTiles.count + secondaryTiles.count != 9 else {
-            status = .tie
-            return
-        }
-        
         for combination in winningCombinations {
             if combination == primaryTiles.intersection(combination) {
                 status = .won(primaryPlayer, combination)
@@ -73,6 +70,10 @@ struct Game {
             if combination == secondaryTiles.intersection(combination) {
                 status = .won(secondaryPlayer, combination)
             }
+        }
+        
+        if primaryTiles.count + secondaryTiles.count == 9 {
+            status = .tie
         }
     }
 }

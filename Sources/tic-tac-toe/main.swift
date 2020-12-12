@@ -15,6 +15,36 @@ trackedReferences.forEach { id, handler in
      document.getElementById(id).object?.onclick = .function(handler)
 }
 
+let headerStuff = """
+<!-- I know, I hate google anayltics. i'm looking for free alternatives - you can disable this if you'd like -->
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-YZD103LZ87"></script>
+<script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-YZD103LZ87');
+    </script>
+<meta name="description" content="TicTacToe in WebAssembly">
+<meta property="og:url" content="https://garrepi.dev/tic-tac-toe/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="garreπ | tic tac toe">
+<meta property="og:description" content="TicTacToe in WebAssembly">
+<meta property="og:image" content="https://www.garrepi.dev/images/prj/ttt.jpg">
+<meta property="og:image:secure_url" content="https://www.garrepi.dev/images/prj/ttt.jpg">
+<!-- Twitter Meta Tags -->
+<meta name="twitter:card" content="summary_large_image">
+<meta property="twitter:domain" content="garrepi.dev/tic-tac-toe/">
+<meta property="twitter:url" content="https://garrepi.dev/tic-tac-toe/">
+<meta name="twitter:title" content="garreπ | tic tac toe">
+<meta name="twitter:description" content="TicTacToe in WebAssembly">
+<meta name="twitter:image" content="https://www.garrepi.dev/images/prj/ttt.jpg">
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="garrepidev">
+<link rel="icon" type="image/jpeg" href="https://www.garrepi.dev/images/prj/ttt.jpg">
+"""
+
 let customCSS = """
 .losing-tile {
     opacity: 35%;
