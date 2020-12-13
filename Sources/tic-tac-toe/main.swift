@@ -66,19 +66,35 @@ style.innerHTML = (CSSStyleSheet.generateStyleSheet() + customCSS).jsValue()
 _ = document.head.appendChild(style)
 
 func generateBody() -> String {
-    Div {
-        header
-        board
+    VStack {
+        Div {
+            header
+            board
+        }
+        .display(.flex)
+        .flexWrap(.wrap)
+        .justifyContent(.spaceBetween)
+        .backgroundColor(Style.Color.background)
+        .color(Style.Color.text)
+        .alignItems(.center)
+        .font(family: "monospace")
+        .flexGrow(1)
+        .width(100, .percent)
+        HStack(justify: .flexStart, align: .center) {
+            Link(href: "https://garrepi.dev/projects") { "projects/" }
+                .font(weight: .bold, size: CSSUnit(24), family: "sans-serif")
+                .textDecoration(.none)
+            Header(.h1) { "TicTacToe in WebAssembly" }
+                .font(weight: .bold, size: CSSUnit(24), family: "sans-serif")
+                .margin(0)
+        }
+        .padding(top: 20, right: 10, bottom: 20, left: 10)
+        .flexWrap(.wrap)
+        .color(Style.Color.text)
+        .backgroundColor(CSSColor("#2e2e2e"))
+        .width(100, .percent)
     }
-    .display(.flex)
-    .flexWrap(.wrap)
-    .justifyContent(.spaceBetween)
-    .backgroundColor(Style.Color.background)
-    .color(Style.Color.text)
-    .alignItems(.center)
-    .font(family: "monospace")
-    .height(100, .percent)
-    .width(100, .percent)
+    .minHeight(100, .percent)
     .render()
 }
 
